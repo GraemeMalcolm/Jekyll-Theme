@@ -11,7 +11,7 @@ layout: default
             <span class="my-1 title text-black">Microsoft Official Courseware</span>
             <span class="ml-2">
                 {% assign languages = page.lab.languages %}
-                {% for language in languages  %}|<a href="{{ language.url }}"> {{ language.code }}</a>|{% endfor %}
+                {% for language in languages  %}|<a href="{{ language[0].url }}"> {{ language[0].code }}</a>|{% endfor %}
             </span>
         </div>
         <!--
