@@ -10,7 +10,7 @@ layout: default
             </a>
             <span class="my-1 title text-black">Microsoft Official Courseware</span>
             <span class="ml-2">
-                {% for language in site.data.loc  %}|<a href="{{ language.url }}"> {{ language.code }}</a>|{% endfor %}
+                |{% for language in site.data.languages  %}<a href="{{ site.url }}-{{ language }}"> {{ language }}</a>|{% endfor %}
             </span>
         </div>
         <!--
