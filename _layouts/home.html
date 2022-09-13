@@ -12,11 +12,14 @@ layout: default
             <span class="ml-2">
                 <a href="{{ site.github.url }}" title="Exercise list">&#8801;</a>
                  <div class="w3-dropdown-hover">
-                    <button class="w3-button w3-white" title-"Language">&#127760;</button>
+                    <button class="w3-button w3-white" title="Language">&#127760;</button>
                     <div class="w3-dropdown-content w3-bar-block w3-border">
                         {% for language in site.data.languages  %}<a href="{{ site.url }}/{{ language.repo }}{{ page.url }}" class="w3-bar-item w3-button"> {{ language.lang }}</a>{% endfor %}
                     </div>
               </div>
+                <a href="{{ site.github.repository_url }}/issues" target="_blank" class="ml-2" title="Report an issue">
+                    &#128489;
+                </a>
             </span>
         </div>
         <!--
