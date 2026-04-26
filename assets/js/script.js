@@ -315,6 +315,12 @@ $(function() {
         }
 
         elements.form.addEventListener('submit', handleSubmit);
+        elements.input.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                elements.form.requestSubmit();
+            }
+        });
         elements.input.addEventListener('input', function() {
             elements.input.style.height = 'auto';
             elements.input.style.height = Math.min(elements.input.scrollHeight, 72) + 'px';
