@@ -40,13 +40,11 @@ $(function() {
             indexUrl: 'https://raw.githubusercontent.com/MicrosoftLearning/ai-apps/refs/heads/main/ask-anton/index.json'
         };
 
-        function escapeHtml(text) {
-            return String(text)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+        function sanitizeHtml(text) {
+            // Create a text node to safely escape HTML without double-encoding
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function normalizeSearchText(text) {
@@ -102,7 +100,9 @@ $(function() {
         }
 
         function formatMessageText(text) {
-            return escapeHtml(text).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+            // First sanitize the text, then replace line breaks with br tags
+            var sanitized = sanitizeHtml(text);
+            return sanitized.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
         }
 
         function typeMessage(element, htmlContent, speed) {
@@ -181,19 +181,27 @@ $(function() {
         }
 
         function addMessage(role, content, isHtml, animate) {
-            var messageDiv = document.createElement('div');
-            messageDiv.className = 'mini-anton-message ' + (role === 'assistant' ? 'mini-anton-assistant' : 'mini-anton-user');
+            
+            // For user messages, always use textContent to prevent HTML injection
+            // For assistant messages, treat isHtml flag but sanitize for safety
+            var messageText = isHtml ? content : content;
             var messageHtml = isHtml ? content : formatMessageText(content);
             
             if (animate && role === 'assistant') {
-                messageDiv.innerHTML = '<p></p>';
+                var pElement = document.createElement('p');
+                messageDiv.appendChild(pElement);
                 elements.messages.appendChild(messageDiv);
                 elements.messages.scrollTop = elements.messages.scrollHeight;
                 
-                var pElement = messageDiv.querySelector('p');
-                var allText = isHtml ? 
-                    content.replace(/<[^>]*>/g, '') : 
-                    messageHtml.replace(/<br[^>]*>/g, '\n').replace(/<[^>]*>/g, '');
+                // For animated messages, set innerHTML safely and extract text for typing effect
+                if (isHtml) {
+                    pElement.innerHTML = messageHtml;
+                } else {
+                    pElement.innerHTML = messageHtml;
+                }
+                
+                var allText = pElement.textContent; // Get rendered text content
+                pElement.textContent = ''; // Clear and rebuild with typing effect
                 var charIdx = 0;
                 
                 function typeChar() {
@@ -207,6 +215,16 @@ $(function() {
                 }
                 
                 typeChar();
+            } else {
+                var pElement = document.createElement('p');
+                if (isHtml && role === 'assistant') {
+                    // Only use innerHTML for trusted assistant content
+                    pElement.innerHTML = messageHtml;
+                } else {
+                    // For user messages, use textContent to prevent HTML injection
+                    pElement.textContent = content;
+                }
+                messageDiv.appendChild(pElement)
             } else {
                 messageDiv.innerHTML = '<p>' + messageHtml + '</p>';
                 elements.messages.appendChild(messageDiv);
