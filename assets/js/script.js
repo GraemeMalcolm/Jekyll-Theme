@@ -105,13 +105,113 @@ $(function() {
             return escapeHtml(text).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
         }
 
-        function addMessage(role, content, isHtml) {
+        function typeMessage(element, htmlContent, speed) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlContent;
+            
+            var textNodes = [];
+            var walk = document.createTreeWalker(
+                tempDiv,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+            
+            var node;
+            while (node = walk.nextNode()) {
+                if (node.textContent.trim()) {
+                    textNodes.push(node);
+                }
+            }
+            
+            var charIndex = 0;
+            var nodeIndex = 0;
+            var totalChars = 0;
+            
+            textNodes.forEach(function(n) {
+                totalChars += n.textContent.length;
+            });
+            
+            function type() {
+                if (nodeIndex >= textNodes.length) {
+                    return;
+                }
+                
+                var currentNode = textNodes[nodeIndex];
+                var currentText = currentNode.textContent;
+                
+                if (charIndex < currentText.length) {
+                    currentNode.textContent = currentText.substring(0, charIndex + 1);
+                    charIndex++;
+                    setTimeout(type, speed);
+                } else {
+                    nodeIndex++;
+                    charIndex = 0;
+                    setTimeout(type, speed);
+                }
+            }
+            
+            element.innerHTML = htmlContent.replace(/>[^<]*</g, function(match) {
+                return match.substring(0, 1) + match.substring(match.length - 1);
+            });
+            
+            var display = element.cloneNode(true);
+            display.innerHTML = '';
+            for (var i = 0; i < tempDiv.children.length; i++) {
+                display.appendChild(tempDiv.children[i].cloneNode(true));
+            }
+            
+            element.innerHTML = htmlContent;
+            var allText = element.innerText;
+            element.innerHTML = '<p></p>';
+            var pElement = element.querySelector('p');
+            var charIdx = 0;
+            
+            function typeChar() {
+                if (charIdx < allText.length) {
+                    var char = allText[charIdx];
+                    pElement.textContent += char;
+                    charIdx++;
+                    elements.messages.scrollTop = elements.messages.scrollHeight;
+                    setTimeout(typeChar, speed);
+                }
+            }
+            
+            typeChar();
+        }
+
+        function addMessage(role, content, isHtml, animate) {
             var messageDiv = document.createElement('div');
             messageDiv.className = 'mini-anton-message ' + (role === 'assistant' ? 'mini-anton-assistant' : 'mini-anton-user');
             var messageHtml = isHtml ? content : formatMessageText(content);
-            messageDiv.innerHTML = '<p>' + messageHtml + '</p>';
-            elements.messages.appendChild(messageDiv);
-            elements.messages.scrollTop = elements.messages.scrollHeight;
+            
+            if (animate && role === 'assistant') {
+                messageDiv.innerHTML = '<p></p>';
+                elements.messages.appendChild(messageDiv);
+                elements.messages.scrollTop = elements.messages.scrollHeight;
+                
+                var pElement = messageDiv.querySelector('p');
+                var allText = isHtml ? 
+                    content.replace(/<[^>]*>/g, '') : 
+                    messageHtml.replace(/<br[^>]*>/g, '\n').replace(/<[^>]*>/g, '');
+                var charIdx = 0;
+                
+                function typeChar() {
+                    if (charIdx < allText.length) {
+                        var char = allText[charIdx];
+                        pElement.textContent += char;
+                        charIdx++;
+                        elements.messages.scrollTop = elements.messages.scrollHeight;
+                        setTimeout(typeChar, 15);
+                    }
+                }
+                
+                typeChar();
+            } else {
+                messageDiv.innerHTML = '<p>' + messageHtml + '</p>';
+                elements.messages.appendChild(messageDiv);
+                elements.messages.scrollTop = elements.messages.scrollHeight;
+            }
         }
 
         function buildKeywordMap() {
@@ -285,14 +385,14 @@ $(function() {
             if (searchQuery) {
                 var searchTarget = buildLearnSearchUrl(searchQuery);
                 elements.status.textContent = 'Created Microsoft Learn search link.';
-                addMessage('assistant', 'I searched for "' + escapeHtml(searchTarget.keywords) + '". <a href="' + searchTarget.url + '" target="_blank" rel="noopener noreferrer">Here\'s what I found.</a>', true);
+                addMessage('assistant', 'I searched for "' + escapeHtml(searchTarget.keywords) + '". <a href="' + searchTarget.url + '" target="_blank" rel="noopener noreferrer">Here\'s what I found.</a>', true, true);
                 setBusy(false);
                 return;
             }
 
             if (!state.indexReady) {
                 var fallbackSearch = buildLearnSearchUrl(userMessage);
-                addMessage('assistant', 'I cannot use the knowledge base right now. You can <a href="' + fallbackSearch.url + '" target="_blank" rel="noopener noreferrer">search Microsoft Learn documentation</a>.', true);
+                addMessage('assistant', 'I cannot use the knowledge base right now. You can <a href="' + fallbackSearch.url + '" target="_blank" rel="noopener noreferrer">search Microsoft Learn documentation</a>.', true, true);
                 setBusy(false);
                 return;
             }
@@ -301,7 +401,7 @@ $(function() {
             if (!searchResult.documents.length) {
                 var noResultsSearch = buildLearnSearchUrl(userMessage);
                 elements.status.textContent = 'No direct match in index.';
-                addMessage('assistant', 'I do not have specific information about that topic. Try <a href="' + noResultsSearch.url + '" target="_blank" rel="noopener noreferrer">searching Microsoft Learn</a>.', true);
+                addMessage('assistant', 'I do not have specific information about that topic. Try <a href="' + noResultsSearch.url + '" target="_blank" rel="noopener noreferrer">searching Microsoft Learn</a>.', true, true);
                 setBusy(false);
                 return;
             }
@@ -310,7 +410,7 @@ $(function() {
             var responseText = searchResult.documents.map(function(document) {
                 return document.content;
             }).join('\n\n');
-            addMessage('assistant', responseText, false);
+            addMessage('assistant', responseText, false, true);
             setBusy(false);
         }
 
