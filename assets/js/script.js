@@ -181,10 +181,11 @@ $(function() {
         }
 
         function addMessage(role, content, isHtml, animate) {
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'mini-anton-message ' + (role === 'assistant' ? 'mini-anton-assistant' : 'mini-anton-user');
             
             // For user messages, always use textContent to prevent HTML injection
             // For assistant messages, treat isHtml flag but sanitize for safety
-            var messageText = isHtml ? content : content;
             var messageHtml = isHtml ? content : formatMessageText(content);
             
             if (animate && role === 'assistant') {
@@ -194,11 +195,7 @@ $(function() {
                 elements.messages.scrollTop = elements.messages.scrollHeight;
                 
                 // For animated messages, set innerHTML safely and extract text for typing effect
-                if (isHtml) {
-                    pElement.innerHTML = messageHtml;
-                } else {
-                    pElement.innerHTML = messageHtml;
-                }
+                pElement.innerHTML = messageHtml;
                 
                 var allText = pElement.textContent; // Get rendered text content
                 pElement.textContent = ''; // Clear and rebuild with typing effect
@@ -224,9 +221,7 @@ $(function() {
                     // For user messages, use textContent to prevent HTML injection
                     pElement.textContent = content;
                 }
-                messageDiv.appendChild(pElement)
-            } else {
-                messageDiv.innerHTML = '<p>' + messageHtml + '</p>';
+                messageDiv.appendChild(pElement);
                 elements.messages.appendChild(messageDiv);
                 elements.messages.scrollTop = elements.messages.scrollHeight;
             }
