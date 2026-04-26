@@ -235,6 +235,14 @@ nav.toc {
     overflow-y: auto !important;
 }
 
+.toc-heading {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    color: #4f4f4f;
+    font-family: segoe-ui_semibold, "Segoe UI Semibold", "Segoe WP", "Helvetica Neue", Helvetica, sans-serif;
+}
+
 .mini-anton {
     display: flex;
     flex-direction: column;
