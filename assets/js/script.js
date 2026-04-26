@@ -85,7 +85,7 @@ $(function() {
                 'where', 'who', 'how', 'why', 'which', 'whom', 'whose', 'also', 'just', 'now', 'here', 'there', 'very', 'too', 'really', 'still', 'always',
                 'never', 'often', 'sometimes', 'maybe', 'perhaps', 'about', 'yes', 'thing', 'something', 'anything', 'nothing', 'everything', 'someone',
                 'anyone', 'everyone', 'understand', 'think', 'believe', 'feel', 'appear', 'say', 'anton', 'please', 'using', 'search', 'documentation',
-                'learn', 'details', 'overview'
+                'docs', 'learn', 'details', 'overview'
             ]);
             var uniqueWords = [];
             var seenWords = new Set();
