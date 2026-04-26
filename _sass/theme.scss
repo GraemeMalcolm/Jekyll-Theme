@@ -239,6 +239,8 @@ nav.toc {
     display: flex;
     flex-direction: column;
     flex: 0 0 auto;
+    height: 360px;
+    max-height: 360px;
     min-height: 0;
     border: 2px solid #b7b7b7;
     border-radius: 0;
@@ -279,8 +281,8 @@ nav.toc {
 }
 
 .mini-anton-messages {
-    flex: 1 1 auto;
-    min-height: 120px;
+    flex: 1 1 0;
+    min-height: 0;
     border: 1px solid #d2d2d2;
     border-radius: 12px;
     background: #ffffff;
