@@ -371,8 +371,8 @@ nav.toc {
 }
 
 .mini-anton-form button {
-    border: 1px solid #3f52d4;
-    background: #5964d8;
+    border: 1px solid var(--theme-accent-hover);
+    background: var(--theme-accent);
     color: #fff;
     border-radius: 3px;
     font-size: 0.72rem;
